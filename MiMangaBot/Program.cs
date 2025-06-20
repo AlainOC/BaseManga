@@ -23,7 +23,12 @@ builder.Services.AddScoped<IMangaRepository, SupabaseMangaRepository>();
 builder.Services.AddScoped<MangaGeneratorService>();
 
 // Configuración de JWT
-var jwtKey = "CLAVE_SUPER_SECRETA_CAMBIALA123!"; // Debe ir en appsettings en producción
+var jwtKey = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrEmpty(jwtKey))
+{
+    throw new InvalidOperationException("La clave JWT no está configurada.");
+}
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
