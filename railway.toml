@@ -1,3 +1,8 @@
 [build]
-dockerfile = "Dockerfile"
-root = "." 
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "dotnet MiMangaBot.dll"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
