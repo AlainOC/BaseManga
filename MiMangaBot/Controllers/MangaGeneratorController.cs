@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using MiMangaBot.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MiMangaBot.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class MangaGeneratorController : ControllerBase
 {
     private readonly MangaGeneratorService _mangaGeneratorService;

@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using MiMangaBot.Domain.Models;
 using MiMangaBot.Domain.Repositories;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MiMangaBot.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class MangaController : ControllerBase
 {
     private readonly IMangaRepository _mangaRepository;
