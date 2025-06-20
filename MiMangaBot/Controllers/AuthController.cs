@@ -1,64 +1,36 @@
 using Microsoft.AspNetCore.Mvc;
-using MiMangaBot.Services;
-
-namespace MiMangaBot.Controllers;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly FirebaseService _firebaseService;
-
-    public AuthController(FirebaseService firebaseService)
+    [HttpPost("login")]
+    public IActionResult Login([FromBody] LoginRequest request)
     {
-        _firebaseService = firebaseService;
-    }
+        // Validación simple (en producción, valida contra tu base de datos)
+        if (request.Username == "admin" && request.Password == "admin")
+        {
+            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("CLAVE_SUPER_SECRETA_CAMBIALA123!"));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-    [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
-    {
-        try
-        {
-            var uid = await _firebaseService.CreateUserAsync(request.Email, request.Password);
-            return Ok(new { uid });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
-    }
+            var token = new JwtSecurityToken(
+                claims: new[] { new Claim(ClaimTypes.Name, request.Username) },
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: creds);
 
-    [HttpGet("user/{uid}")]
-    public async Task<IActionResult> GetUser(string uid)
-    {
-        try
-        {
-            var user = await _firebaseService.GetUserAsync(uid);
-            return Ok(user);
+            return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
         }
-        catch (Exception ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
-    }
 
-    [HttpDelete("user/{uid}")]
-    public async Task<IActionResult> DeleteUser(string uid)
-    {
-        try
-        {
-            await _firebaseService.DeleteUserAsync(uid);
-            return Ok(new { message = "Usuario eliminado correctamente" });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
+        return Unauthorized();
     }
 }
 
-public class RegisterRequest
+public class LoginRequest
 {
-    public string Email { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
+    public string Username { get; set; } = "";
+    public string Password { get; set; } = "";
 } 

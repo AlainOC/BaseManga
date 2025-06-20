@@ -25,23 +25,30 @@ public class MangaController : ControllerBase
         {
             _logger.LogInformation($"Obteniendo mangas - Página {page}, Tamaño de página: {pageSize}");
             var allMangas = await _mangaRepository.GetAllAsync();
-            
-            // Validar parámetros de paginación
+
+            // Mapea a DTO
+            var mangaDtos = allMangas.Select(m => new MangaDto
+            {
+                Id = m.Id,
+                Titulo = m.Titulo,
+                Autor = m.Autor,
+                GeneroId = m.GeneroId,
+                Genero = m.Genero?.Nombre ?? "",
+                // Agrega otros campos si lo deseas
+            }).ToList();
+
+            // Paginación
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 30;
-            
-            // Calcular el total de páginas
-            var totalMangas = allMangas.Count;
+            var totalMangas = mangaDtos.Count;
             var totalPages = (int)Math.Ceiling(totalMangas / (double)pageSize);
-            
-            // Obtener los mangas para la página actual
-            var mangas = allMangas
+            var mangas = mangaDtos
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
-            
-            return Ok(new 
-            { 
+
+            return Ok(new
+            {
                 totalMangas,
                 totalPages,
                 currentPage = page,
@@ -57,7 +64,7 @@ public class MangaController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(string id)
+    public async Task<IActionResult> GetById(Guid id)
     {
         try
         {
@@ -107,7 +114,7 @@ public class MangaController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, [FromBody] Manga manga)
+    public async Task<IActionResult> Update(Guid id, [FromBody] Manga manga)
     {
         try
         {
@@ -150,7 +157,7 @@ public class MangaController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
+    public async Task<IActionResult> Delete(Guid id)
     {
         try
         {
@@ -196,7 +203,7 @@ public class MangaController : ControllerBase
             if (!string.IsNullOrWhiteSpace(genero))
             {
                 filteredMangas = filteredMangas.Where(m => 
-                    m.Genero.Equals(genero, StringComparison.OrdinalIgnoreCase));
+                    m.Genero != null && m.Genero.Nombre.Equals(genero, StringComparison.OrdinalIgnoreCase));
             }
 
             var result = filteredMangas.ToList();

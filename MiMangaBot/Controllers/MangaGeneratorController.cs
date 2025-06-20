@@ -41,7 +41,7 @@ public class MangaGeneratorController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al generar mangas");
-            return StatusCode(500, "Error al generar los mangas: " + ex.Message);
+            return StatusCode(500, $"Error al generar los mangas: {ex.Message}\n{ex.StackTrace}");
         }
     }
 
@@ -119,7 +119,7 @@ public class MangaGeneratorController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteManga(string id)
+    public async Task<IActionResult> DeleteManga(Guid id)
     {
         try
         {

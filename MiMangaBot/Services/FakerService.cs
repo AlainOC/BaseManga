@@ -14,7 +14,7 @@ public class FakerService
         _mangaFaker = new Faker<Manga>()
             .RuleFor(m => m.Titulo, f => string.Join(" ", f.Lorem.Words(3)))
             .RuleFor(m => m.Autor, f => f.Name.FullName())
-            .RuleFor(m => m.Genero, f => f.PickRandom(generos))
+            .RuleFor(m => m.GeneroId, f => f.Random.Int(1, 10))
             .RuleFor(m => m.AnioPublicacion, f => f.Random.Int(1960, 2024))
             .RuleFor(m => m.FechaCreacion, f => f.Date.Past());
     }

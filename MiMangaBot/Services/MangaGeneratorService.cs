@@ -25,7 +25,7 @@ public class MangaGeneratorService
         _mangaFaker = new Faker<Manga>("es")
             .RuleFor(m => m.Titulo, f => GenerateUniqueTitle(f))
             .RuleFor(m => m.Autor, f => f.Name.FullName())
-            .RuleFor(m => m.Genero, f => f.PickRandom(generos))
+            .RuleFor(m => m.GeneroId, f => f.Random.Int(1, 10))
             .RuleFor(m => m.AnioPublicacion, f => f.Random.Int(1960, 2024))
             .RuleFor(m => m.Volumenes, f => f.Random.Int(1, 100))
             .RuleFor(m => m.EnPublicacion, f => f.Random.Bool())
@@ -108,7 +108,7 @@ public class MangaGeneratorService
         return await _mangaRepository.GetDuplicatesAsync();
     }
 
-    public async Task<bool> DeleteMangaAsync(string id)
+    public async Task<bool> DeleteMangaAsync(Guid id)
     {
         return await _mangaRepository.DeleteAsync(id);
     }
