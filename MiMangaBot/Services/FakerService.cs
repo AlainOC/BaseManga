@@ -1,5 +1,5 @@
 using Bogus;
-using MiMangaBot.Domain.Models;
+using MiMangaBot.Data.ScaffoldedModels;
 
 namespace MiMangaBot.Services;
 
@@ -15,8 +15,8 @@ public class FakerService
             .RuleFor(m => m.Titulo, f => string.Join(" ", f.Lorem.Words(3)))
             .RuleFor(m => m.Autor, f => f.Name.FullName())
             .RuleFor(m => m.GeneroId, f => f.Random.Int(1, 10))
-            .RuleFor(m => m.AnioPublicacion, f => f.Random.Int(1960, 2024))
-            .RuleFor(m => m.FechaCreacion, f => f.Date.Past());
+            .RuleFor(m => m.Aniopublicacion, f => f.Random.Int(1960, 2024))
+            .RuleFor(m => m.Fechacreacion, f => f.Date.Past());
     }
 
     public IEnumerable<Manga> GenerateMangas(int count)

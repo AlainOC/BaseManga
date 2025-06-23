@@ -61,12 +61,12 @@ public class MangaGeneratorController : ControllerBase
                 message = "Servicio de generación de mangas activo",
                 totalMangas = allMangas.Count,
                 mangasDuplicados = duplicates.Count,
-                ultimaActualizacion = allMangas.Max(m => m.FechaActualizacion ?? m.FechaCreacion),
+                ultimaActualizacion = allMangas.Max(m => m.Fechaactualizacion ?? m.Fechacreacion),
                 estado = new
                 {
                     totalGeneros = allMangas.Select(m => m.Genero).Distinct().Count(),
                     totalEditoriales = allMangas.Select(m => m.Editorial).Distinct().Count(),
-                    mangasEnPublicacion = allMangas.Count(m => m.EnPublicacion),
+                    mangasEnPublicacion = allMangas.Count(m => m.Enpublicacion),
                     mangasFinalizados = allMangas.Count(m => m.Estado == "Finalizado")
                 }
             });

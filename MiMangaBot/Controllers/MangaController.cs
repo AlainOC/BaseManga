@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using MiMangaBot.Domain.Models;
+using MiMangaBot.Data.ScaffoldedModels;
 using MiMangaBot.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
@@ -26,25 +26,14 @@ public class MangaController : ControllerBase
         try
         {
             _logger.LogInformation($"Obteniendo mangas - Página {page}, Tamaño de página: {pageSize}");
-            var allMangas = await _mangaRepository.GetAllAsync();
-
-            // Mapea a DTO
-            var mangaDtos = allMangas.Select(m => new MangaDto
-            {
-                Id = m.Id,
-                Titulo = m.Titulo,
-                Autor = m.Autor,
-                GeneroId = m.GeneroId,
-                Genero = m.Genero?.Nombre ?? "",
-                // Agrega otros campos si lo deseas
-            }).ToList();
+            var allMangas = await _mangaRepository.GetAllAsync(page, pageSize);
 
             // Paginación
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 30;
-            var totalMangas = mangaDtos.Count;
+            var totalMangas = allMangas.Count;
             var totalPages = (int)Math.Ceiling(totalMangas / (double)pageSize);
-            var mangas = mangaDtos
+            var mangas = allMangas
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
@@ -103,7 +92,7 @@ public class MangaController : ControllerBase
             }
 
             _logger.LogInformation($"Creando nuevo manga: {manga.Titulo}");
-            manga.FechaCreacion = DateTime.UtcNow;
+            manga.Fechacreacion = DateTime.UtcNow;
             var createdManga = await _mangaRepository.AddAsync(manga);
             
             return CreatedAtAction(nameof(GetById), new { id = createdManga.Id }, createdManga);
@@ -139,7 +128,7 @@ public class MangaController : ControllerBase
             }
 
             manga.Id = id; // Asegurar que el ID no cambie
-            manga.FechaActualizacion = DateTime.UtcNow;
+            manga.Fechaactualizacion = DateTime.UtcNow;
             
             _logger.LogInformation($"Actualizando manga con ID: {id}");
             var success = await _mangaRepository.UpdateAsync(manga);

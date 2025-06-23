@@ -1,21 +1,26 @@
 using MiMangaBot.Domain.Models;
 using MiMangaBot.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
+using MiMangaBot.Data.ScaffoldedModels;
 
 namespace MiMangaBot.Data.Repositories
 {
     public class MangaRepository : IMangaRepository
     {
-        private readonly ApplicationDbContext _context;
+        private readonly RailwayContext _context;
 
-        public MangaRepository(ApplicationDbContext context)
+        public MangaRepository(RailwayContext context)
         {
             _context = context;
         }
 
-        public async Task<List<Manga>> GetAllAsync()
+        public async Task<List<Manga>> GetAllAsync(int page = 1, int pageSize = 30)
         {
-            return await _context.Mangas.Include(m => m.Genero).ToListAsync();
+            return await _context.Mangas
+                .Include(m => m.Genero)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
         }
 
         public async Task<Manga?> GetByIdAsync(Guid id)
@@ -53,7 +58,7 @@ namespace MiMangaBot.Data.Repositories
         {
             var allMangas = await GetAllAsync();
             return allMangas
-                .GroupBy(m => m.TituloNormalizado)
+                .GroupBy(m => m.TituloNormalizado())
                 .Where(g => g.Count() > 1)
                 .ToDictionary(g => g.Key, g => g.ToList());
         }
@@ -63,6 +68,14 @@ namespace MiMangaBot.Data.Repositories
             _context.Mangas.AddRange(mangas);
             await _context.SaveChangesAsync();
             return mangas.ToList();
+        }
+    }
+
+    public static class MangaExtensions
+    {
+        public static string TituloNormalizado(this Manga manga)
+        {
+            return manga.Titulo.ToLower().Trim();
         }
     }
 } 

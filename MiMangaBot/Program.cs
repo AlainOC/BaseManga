@@ -11,13 +11,18 @@ using System.Text;
 using MiMangaBot.Domain.Repositories;
 using MiMangaBot.Data.Repositories;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
+using MiMangaBot.Data.ScaffoldedModels;
 
 System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
 builder.Services.AddScoped<IMangaRepository, MiMangaBot.Data.Repositories.MangaRepository>();
 
 // Registrar servicios
@@ -92,7 +97,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContext<RailwayContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
