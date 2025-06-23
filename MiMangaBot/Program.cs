@@ -3,13 +3,14 @@
 using Microsoft.EntityFrameworkCore;
 using MiMangaBot.Data;
 using MiMangaBot.Services;
-using MiMangaBot.Domain.Repositories;
-using MiMangaBot.Infrastructure.Repositories;
 using Microsoft.OpenApi.Models;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using MiMangaBot.Domain.Repositories;
+using MiMangaBot.Data.Repositories;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
 
@@ -17,9 +18,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddScoped<IMangaRepository, MiMangaBot.Data.Repositories.MangaRepository>();
 
 // Registrar servicios
-builder.Services.AddScoped<IMangaRepository, SupabaseMangaRepository>();
 builder.Services.AddScoped<MangaGeneratorService>();
 
 // Configuración de JWT
@@ -90,6 +91,9 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
